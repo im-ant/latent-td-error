@@ -30,7 +30,7 @@ class TDLambdaAgent(BaseLinearAgent):
     def begin_episode(self, phi):
         super().begin_episode(phi)
         self.log_dict = {
-            'value_errors': [],
+            'td_errors': [],
         }
 
     def step(self, phi_t: np.array, reward: float, done: bool) -> None:
@@ -81,7 +81,7 @@ class TDLambdaAgent(BaseLinearAgent):
 
         # ==
         # Logging losses
-        self.log_dict['value_errors'].append(td_err)
+        self.log_dict['td_errors'].append(td_err)
 
     def report(self, logger, episode_idx):
         # Compute average predictions and log
