@@ -99,6 +99,8 @@ class LinearTrackEnvGenerator:
             for n_ord in range(1, args['nth_order']+1):
                 phi_mat[s_idx, n_ord] = prox**n_ord
 
+        phi_mat[-1] *= 0.0
+
         return phi_mat
 
     def gen_random_features(self, args: dict):
