@@ -60,6 +60,8 @@ class LinearTrackEnvGenerator:
         """
         if feature_type == 'tabular':
             return self.gen_tabular_features(feature_args)
+        elif feature_type == 'polynomial':
+            return self.gen_polynomial_features(feature_args)
         elif feature_type == 'random':
             return self.gen_random_features(feature_args)
         elif feature_type == 'grid':
@@ -76,6 +78,27 @@ class LinearTrackEnvGenerator:
         """
         phi_mat = np.identity(self.n_states)
         phi_mat[-1] *= 0.0
+        return phi_mat
+
+    def gen_polynomial_features(self, args: dict):
+        """
+        Generate polynomial features (polynom function as distance to
+        end of the track)
+        :return: (n_states, d) np matrix
+        """
+        if args is None or len(args) == 0:
+            args = {
+                'nth_order': 2,
+            }
+
+        phi_mat = np.ones((self.n_states, (args['nth_order']+1)))
+
+        # Compute feature as exponential decay of distance
+        for s_idx in range(self.n_states):
+            prox = np.exp(-(self.n_states - s_idx - 2))
+            for n_ord in range(1, args['nth_order']+1):
+                phi_mat[s_idx, n_ord] = prox**n_ord
+
         return phi_mat
 
     def gen_random_features(self, args: dict):
@@ -180,6 +203,10 @@ if __name__ == '__main__':
 
     print('Tabular')
     hmat = env_generator.get_feature_matrix('tabular', feature_args)
+    print(hmat)
+
+    print('Polynomial')
+    hmat = env_generator.get_feature_matrix('polynomial', feature_args)
     print(hmat)
 
     print('Random')
