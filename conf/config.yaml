@@ -1,0 +1,21 @@
+training:
+  num_episodes: 14
+
+environment:
+  generator:
+    cls: 'LinearTrackEnvGenerator'
+    kwargs:
+      n_states: 11
+      seed: 0
+  feature:
+    type: 'tabular'
+    args: {}
+  env_seed: 0
+agent:
+  cls: 'TDLambdaAgent'
+  kwargs:
+    gamma: 0.9
+    lamb: 0.0
+    lr: 0.1
+    offline: True
+    seed: 0

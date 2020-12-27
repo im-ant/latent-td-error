@@ -15,6 +15,7 @@ class TDLambdaAgent(BaseLinearAgent):
                  gamma=0.9,
                  lamb=0.8,
                  lr=0.1,
+                 offline=True,
                  seed=0):
 
         """
@@ -22,16 +23,24 @@ class TDLambdaAgent(BaseLinearAgent):
         """
         super().__init__(feature_dim, gamma=gamma, lr=lr, seed=seed)
         self.lamb = lamb
+        self.offline = offline
 
         # Initialize V function and trace
         self.Wv = np.zeros(self.feature_dim)
         self.Z = np.zeros(self.feature_dim)
+
+        # (optional) offline update cumulant
+        self.offline_cumu_delta = np.zeros(self.feature_dim)
 
     def begin_episode(self, phi):
         super().begin_episode(phi)
         self.log_dict = {
             'td_errors': [],
         }
+
+        # Reset
+        self.Z *= 0.0
+        self.offline_cumu_delta *= 0
 
     def step(self, phi_t: np.array, reward: float, done: bool) -> None:
         """
@@ -77,11 +86,23 @@ class TDLambdaAgent(BaseLinearAgent):
 
         # Parameter updates
         delta_Wv = td_err * self.Z
-        self.Wv = self.Wv + (self.lr * delta_Wv)
+        if not self.offline:
+            self.Wv = self.Wv + (self.lr * delta_Wv)
+        else:
+            self.offline_cumu_delta += self.lr * delta_Wv
+            if done:
+                self.Wv = self.Wv + self.offline_cumu_delta
 
         # ==
         # Logging losses
         self.log_dict['td_errors'].append(td_err)
+
+    def get_parameters(self):
+        """
+        Get the value function parameters
+        :return: np vector
+        """
+        return self.Wv
 
     def report(self, logger, episode_idx):
         # Compute average predictions and log
