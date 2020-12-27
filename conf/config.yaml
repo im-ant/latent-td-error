@@ -11,12 +11,11 @@ environment:
     type: 'tabular'
     args: {}
   env_seed: 0
-
 agent:
   cls: 'TDLambdaAgent'
   kwargs:
     gamma: 0.9
-    lamb: 0.8
+    lamb: 0.0
     lr: 0.1
     offline: True
     seed: 0
