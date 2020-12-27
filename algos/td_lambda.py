@@ -15,6 +15,7 @@ class TDLambdaAgent(BaseLinearAgent):
                  gamma=0.9,
                  lamb=0.8,
                  lr=0.1,
+                 offline=True,
                  seed=0):
 
         """
@@ -32,6 +33,7 @@ class TDLambdaAgent(BaseLinearAgent):
         self.log_dict = {
             'td_errors': [],
         }
+        self.Z *= 0.0  # reset trace
 
     def step(self, phi_t: np.array, reward: float, done: bool) -> None:
         """
@@ -82,6 +84,13 @@ class TDLambdaAgent(BaseLinearAgent):
         # ==
         # Logging losses
         self.log_dict['td_errors'].append(td_err)
+
+    def get_parameters(self):
+        """
+        Get the value function parameters
+        :return: np vector
+        """
+        return self.Wv
 
     def report(self, logger, episode_idx):
         # Compute average predictions and log
